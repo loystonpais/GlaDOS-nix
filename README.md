@@ -1,3 +1,12 @@
+# Nix Usage (shell)
+
+First setup ollama https://wiki.nixos.org/wiki/Ollama
+```nix
+git clone https://github.com/loystonpais/GlaDOS-nix
+cd GlaDOS-nix
+nix develop
+```
+
 # GLaDOS Personality Core
 
 This is a project dedicated to building a real-life version of GLaDOS!
