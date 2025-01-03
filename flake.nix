@@ -1,5 +1,5 @@
 {
-  description = "A discord bot written in rust";
+  description = "GlaDOS";
 
   inputs = {nixpkgs.url = "nixpkgs/nixpkgs-unstable";};
 
