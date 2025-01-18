@@ -1,10 +1,8 @@
-import sys
 from typing import Dict, List
 
 import librosa
 import numpy as np
 import onnxruntime as ort
-from loguru import logger
 
 # Default OnnxRuntime is way to verbose
 ort.set_default_logger_severity(4)
@@ -13,27 +11,39 @@ ort.set_default_logger_severity(4)
 MODEL_PATH = "./models/nemo-parakeet_tdt_ctc_110m.onnx"
 TOKEN_PATH = "./models/nemo-parakeet_tdt_ctc_110m_tokens.txt"
 
+# Constants
+SAMPLE_RATE = 16000
+N_MELS = 80
+N_FFT = 400
+HOP_LENGTH = 160
+WIN_LENGTH = 400
+
+
 class AudioTranscriber:
     def __init__(
         self,
         model_path: str = MODEL_PATH,
         tokens_file: str = TOKEN_PATH,
-        sample_rate: int = 16000,
+        sample_rate: int = SAMPLE_RATE,
     ) -> None:
         self.sample_rate = sample_rate
+        
+        providers = ort.get_available_providers()
+        if "TensorrtExecutionProvider" in providers:
+            providers.remove("TensorrtExecutionProvider")
 
         self.session = ort.InferenceSession(
             model_path,
             sess_options=ort.SessionOptions(),
-            providers=ort.get_available_providers(),
+            providers=providers,
         )
         self.vocab = self._load_vocabulary(tokens_file)
 
         # Standard mel spectrogram parameters
-        self.n_mels = 80
-        self.n_fft = 400
-        self.hop_length = 160
-        self.win_length = 400
+        self.n_mels = N_MELS
+        self.n_fft = N_FFT
+        self.hop_length = HOP_LENGTH
+        self.win_length = WIN_LENGTH
 
     def _load_vocabulary(self, tokens_file: str) -> Dict[int, str]:
         vocab = {}

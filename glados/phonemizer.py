@@ -11,7 +11,7 @@ import numpy as np
 import onnxruntime as ort
 
 # Default OnnxRuntime is way to verbose
-ort.set_default_logger_severity(3)
+ort.set_default_logger_severity(4)
 
 
 @dataclass
@@ -108,11 +108,15 @@ class Phonemizer:
         self.phoneme_dict = self._load_pickle(self.config.PHONEME_DICT_PATH)
         self.token_to_idx = self._load_pickle(self.config.TOKEN_TO_IDX_PATH)
         self.idx_to_token = self._load_pickle(self.config.IDX_TO_TOKEN_PATH)
-
+        
+        providers = ort.get_available_providers()
+        if "TensorrtExecutionProvider" in providers:
+            providers.remove("TensorrtExecutionProvider")
+        
         self.ort_session = ort.InferenceSession(
             self.config.MODEL_NAME,
             sess_options=ort.SessionOptions(),
-            providers=ort.get_available_providers(),
+            providers=providers,
         )
 
         self.special_tokens: set[str] = {
